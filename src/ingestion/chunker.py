@@ -1,4 +1,6 @@
 import json
+import re
+from html import unescape
 from pathlib import Path
 
 def chunk_text(text, chunk_size=1000, overlap=200):
@@ -10,18 +12,31 @@ def chunk_text(text, chunk_size=1000, overlap=200):
         start += chunk_size - overlap
     return chunks
 
+def clean_text(text: str) -> str:
+    # Remove hidden Inline XBRL metadata block (high-noise, low-value for QA)
+    text = re.sub(r"<ix:hidden>.*?</ix:hidden>", " ", text, flags=re.IGNORECASE | re.DOTALL)
+    # Remove HTML/XBRL tags
+    text = re.sub(r"<[^>]+>", " ", text)
+    # Decode HTML entities like &#8217;
+    text = unescape(text)
+    # Remove taxonomy/namespace tokens and URLs (high-noise for semantic search)
+    text = re.sub(r"https?://\S+", " ", text)
+    text = re.sub(r"\b[\w.-]+:[\w.#-]+\b", " ", text)
+    # Basic whitespace normalization
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
 def process_file(filepath, output_dir):
     text = filepath.read_text(encoding="utf-8")
-    
-    # Basic cleaning
-    import re
-    text = re.sub(r'\n{4,}', '\n\n', text)
-    text = re.sub(r' {3,}', ' ', text)
+    text = clean_text(text)
     
     chunks = chunk_text(text)
     
     result = []
     for i, chunk in enumerate(chunks):
+        # Skip metadata-heavy chunks (mostly IDs/dates, little natural language)
+        if len(re.findall(r"[A-Za-z]{3,}", chunk)) < 30:
+            continue
         result.append({
             "chunk_id": f"{filepath.stem}_{i:04d}",
             "text": chunk,
