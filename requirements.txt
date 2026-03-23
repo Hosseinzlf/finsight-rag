@@ -16,6 +16,7 @@ chromadb==0.5.15
 # API
 fastapi==0.115.0
 uvicorn==0.30.6
+streamlit==1.55.0
 python-dotenv==1.0.1
 pydantic==2.9.2
 
