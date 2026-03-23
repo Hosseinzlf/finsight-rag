@@ -1,13 +1,21 @@
-import chromadb
+import os
 from sentence_transformers import SentenceTransformer
 from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
+os.environ.setdefault("ANONYMIZED_TELEMETRY", "FALSE")
+
+import chromadb
+from chromadb.config import Settings
 
 # Load the same model and collection we used in Phase 2
 model  = SentenceTransformer("all-MiniLM-L6-v2")
-client = chromadb.PersistentClient(path="data/embeddings")
+
+client = chromadb.PersistentClient(
+    path="data/embeddings",
+    settings=Settings(anonymized_telemetry=False)
+)
 collection = client.get_or_create_collection(name="filings")
 
 openai = OpenAI()
@@ -56,3 +64,9 @@ if __name__ == "__main__":
         print(f"\nQ: {q}")
         print(f"A: {ask(q)}")
         print("-" * 50)
+
+
+
+
+
+

@@ -1,15 +1,23 @@
 # src/embeddings/embedder.py
 
 import json
+import os
 from pathlib import Path
+
+os.environ.setdefault("ANONYMIZED_TELEMETRY", "FALSE")
+
 import chromadb
+from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
 
 # Load the embedding model — runs locally, completely free
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# Set up ChromaDB — saves to disk so we don't re-embed every time
-client = chromadb.PersistentClient(path="data/embeddings")
+# Add this line when creating the client
+client = chromadb.PersistentClient(
+    path="data/embeddings",
+    settings=Settings(anonymized_telemetry=False)
+)
 collection = client.get_or_create_collection(name="filings")
 
 def embed_chunks(chunks_path: Path):
