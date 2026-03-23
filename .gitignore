@@ -1,0 +1,17 @@
+# Environment
+.env
+venv/
+__pycache__/
+*.pyc
+
+# Data (too large for git)
+data/raw/
+data/chunks/
+data/embeddings/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store

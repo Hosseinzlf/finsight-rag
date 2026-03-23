@@ -1,0 +1,28 @@
+# Core
+langchain==0.2.16
+langchain-community==0.2.16
+langchain-openai==0.1.23
+
+# Document processing
+pymupdf==1.24.10
+beautifulsoup4==4.12.3
+requests==2.32.3
+lxml==5.3.0
+
+# Embeddings & vector store
+sentence-transformers==3.1.1
+chromadb==0.5.15
+
+# API
+fastapi==0.115.0
+uvicorn==0.30.6
+python-dotenv==1.0.1
+pydantic==2.9.2
+
+# Evaluation
+ragas==0.1.21
+
+# Dev tools
+jupyter==1.1.1
+tqdm==4.66.5
+pandas==2.2.3
