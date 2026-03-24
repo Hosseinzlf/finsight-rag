@@ -11,6 +11,7 @@ data/embeddings/
 data/raw/AMZN_2024_10K.txt
 data/raw/MSFT_2024_10K.txt
 data/raw/TSLA_2024_10K.txt
+
 .vscode/
 .idea/
 
@@ -19,3 +20,4 @@ data/raw/TSLA_2024_10K.txt
 
 # codes
 download_raw_inputs.py
+testcode.py

@@ -26,7 +26,7 @@ def embed_chunks(chunks_path: Path):
 
     texts = [c["text"] for c in chunks]
     ids   = [c["chunk_id"] for c in chunks]
-    metas = [{"source": c["source"], "chunk_index": c["chunk_index"]} for c in chunks]
+    metas = [{"source": c["source"], "chunk_index": c["chunk_index"], "ticker": c["ticker"], "company": c["company"]} for c in chunks]  #
 
     print(f"Embedding {len(texts)} chunks... (this takes 1-2 minutes)")
 

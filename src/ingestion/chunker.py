@@ -3,6 +3,14 @@ import re
 from html import unescape
 from pathlib import Path
 
+
+TICKER_MAP = {
+    "AAPL": "Apple",
+    "MSFT": "Microsoft",
+    "TSLA": "Tesla",
+    "AMZN": "Amazon",
+}
+
 def chunk_text(text, chunk_size=1000, overlap=200):
     chunks = []
     start = 0
@@ -32,23 +40,28 @@ def process_file(filepath, output_dir):
     
     chunks = chunk_text(text)
     
+    # Extract ticker from filename e.g. "AAPL_2024_10K.txt" → "AAPL"
+    ticker = filepath.stem.split("_")[0]
+    company = TICKER_MAP.get(ticker, ticker)  # fallback to ticker if not in map
+    
     result = []
     for i, chunk in enumerate(chunks):
-        # Skip metadata-heavy chunks (mostly IDs/dates, little natural language)
         if len(re.findall(r"[A-Za-z]{3,}", chunk)) < 30:
             continue
         result.append({
             "chunk_id": f"{filepath.stem}_{i:04d}",
             "text": chunk,
             "source": filepath.name,
-            "chunk_index": i
+            "chunk_index": i,
+            "ticker": ticker,       # ← NEW
+            "company": company,     # ← NEW
         })
     
     out_path = output_dir / f"{filepath.stem}_chunks.json"
     with open(out_path, "w") as f:
         json.dump(result, f, indent=2)
     
-    print(f"Done: {len(result)} chunks saved to {out_path.name}")
+    print(f"Done: {len(result)} chunks saved to {out_path.name} [{ticker}]")
     return result
 
 if __name__ == "__main__":
