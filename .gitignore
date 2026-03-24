@@ -8,10 +8,14 @@ __pycache__/
 #data/raw/
 data/chunks/
 data/embeddings/
-
-# IDE
+data/raw/AMZN_2024_10K.txt
+data/raw/MSFT_2024_10K.txt
+data/raw/TSLA_2024_10K.txt
 .vscode/
 .idea/
 
 # OS
 .DS_Store
+
+# codes
+download_raw_inputs.py

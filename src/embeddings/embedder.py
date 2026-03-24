@@ -54,13 +54,13 @@ def test_search(query: str):
     query_embedding = model.encode(query).tolist()
     results = collection.query(
         query_embeddings=[query_embedding],
-        n_results=3,
+        n_results=1,
     )
     print(f"\nQuery: '{query}'")
     print("-" * 50)
     for i, doc in enumerate(results["documents"][0]):
         print(f"\nResult {i+1}:")
-        print(doc[:300])
+        print(doc[:100])
         print("...")
 
 if __name__ == "__main__":
@@ -71,5 +71,5 @@ if __name__ == "__main__":
         embed_chunks(path)
 
     # Test it works
-    test_search("What are Apple's main risk factors?")
+    test_search("How much revenue did Tesla make?")
     test_search("How much revenue did Apple make?")
