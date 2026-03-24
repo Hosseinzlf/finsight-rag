@@ -2,6 +2,7 @@ import os
 from sentence_transformers import SentenceTransformer
 from openai import OpenAI
 from dotenv import load_dotenv
+from typing import Any, Optional
 
 load_dotenv()
 os.environ.setdefault("ANONYMIZED_TELEMETRY", "FALSE")
@@ -20,17 +21,28 @@ collection = client.get_or_create_collection(name="filings")
 
 openai = OpenAI()
 
-def retrieve(query: str, n_results: int = 5) -> list[str]:
+def retrieve(query: str, n_results: int = 5, ticker: Optional[str] = None) -> dict[str, Any]:
     query_embedding = model.encode(query).tolist()
-    results = collection.query(
-        query_embeddings=[query_embedding],
-        n_results=n_results,
-    )
-    return results["documents"][0]
+    query_kwargs: dict[str, Any] = {
+        "query_embeddings": [query_embedding],
+        "n_results": n_results,
+    }
+    if ticker:
+        query_kwargs["where"] = {"ticker": ticker}
 
-def ask(question: str) -> str:
+    return collection.query(**query_kwargs)
+
+def ask(question: str, ticker: Optional[str] = None) -> dict[str, Any]:
     # Step 1 — find relevant chunks
-    chunks = retrieve(question)
+    results = retrieve(question, ticker=ticker)
+    chunks = results.get("documents", [[]])[0]
+    metadatas = results.get("metadatas", [[]])[0]
+    if not chunks:
+        return {
+            "answer": "I don't have enough information.",
+            "sources": [],
+            "tickers_searched": [ticker] if ticker else ["ALL"],
+        }
 
     # Step 2 — build the prompt
     context = "\n\n---\n\n".join(chunks)
@@ -51,13 +63,32 @@ Answer:"""
         temperature=1,
     )
 
-    return response.choices[0].message.content
+    answer = response.choices[0].message.content
+    sources = []
+    tickers_found = set()
+    for i, chunk_text in enumerate(chunks):
+        metadata = metadatas[i] if i < len(metadatas) and metadatas[i] else {}
+        source = {
+            "source": metadata.get("source", "Unknown"),
+            "ticker": metadata.get("ticker", "UNKNOWN"),
+            "company": metadata.get("company", "Unknown"),
+            "chunk_index": metadata.get("chunk_index"),
+            "text": chunk_text,
+        }
+        tickers_found.add(source["ticker"])
+        sources.append(source)
+
+    return {
+        "answer": answer,
+        "sources": sources,
+        "tickers_searched": [ticker] if ticker else sorted(tickers_found) or ["ALL"],
+    }
 
 if __name__ == "__main__":
     questions = [
         "What are Apple's main risk factors?",
-        "How much revenue did Apple make in 2024?",
-        "What did Apple say about AI in their filing?",
+        "How much revenue did Tesla make in 2024?",
+        "What did Amazon say about AI in their filing?",
     ]
 
     for q in questions:

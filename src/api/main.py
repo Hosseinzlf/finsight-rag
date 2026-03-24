@@ -3,12 +3,14 @@ sys.path.append(".")
 
 from fastapi import FastAPI
 from pydantic import BaseModel
-from src.retrieval.rag_chain import ask, retrieve
+from typing import Optional
+from src.retrieval.rag_chain import ask
 
 app = FastAPI(title="FinSight API")
 
 class Question(BaseModel):
     text: str
+    ticker: Optional[str] = None  # ← NEW: optional company filter from UI
 
 @app.get("/")
 def root():
@@ -16,10 +18,11 @@ def root():
 
 @app.post("/ask")
 def ask_question(question: Question):
-    answer = ask(question.text)
-    chunks = retrieve(question.text)
+    # ask() now returns a dict with answer + sources + tickers_searched
+    result = ask(question.text, question.ticker)
     return {
         "question": question.text,
-        "answer": answer,
-        "sources": chunks[:1]
+        "answer": result["answer"],
+        "sources": result["sources"],
+        "tickers_searched": result["tickers_searched"],
     }
