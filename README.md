@@ -4,7 +4,7 @@ FinSight is an end-to-end Retrieval-Augmented Generation (RAG) project for askin
 It ingests raw filing text, chunks and cleans it, builds local embeddings with ChromaDB, and serves grounded answers through a FastAPI backend and Streamlit UI.
 
 The current implementation is intentionally lightweight and practical: local retrieval, simple prompt grounding, and a minimal evaluation script for quick iteration.
-
+ 
 ## What This Project Does
 
 - Ingests filing text from `data/raw/`
