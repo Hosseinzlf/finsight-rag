@@ -123,7 +123,7 @@ API default:
 - Q&A route: `POST /ask`
 
 ### 8) Start Streamlit frontend (separate terminal)
-
+ 
 ```bash
 streamlit run app.py
 ```
