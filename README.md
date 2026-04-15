@@ -109,7 +109,7 @@ This writes vectors to:
 ```text
 data/embeddings/
 ```
-
+ 
 ### 7) Start API backend
 
 ```bash
